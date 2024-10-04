@@ -55,20 +55,20 @@ class Gauss(nf.distributions.Target):
         self.targetval = 1.0# torch.prod(0.5 * (erf_1 - erf_0))
         self.batchsize = batchsize
     def log_prob(self, x):
+        #x = torch.tensor(x)
         # Compute the inverse of the covariance matrix
         cov_inv = torch.inverse(self.cov)
 
         # Compute the difference (x - mu)
         diff = x - 0.5
-
         # Compute the quadratic form: (x - mu)^T Σ^{-1} (x - mu)
-        quadratic_form = torch.sum(diff.unsqueeze(-1) * (cov_inv @ diff.unsqueeze(-1)), dim=1)
+        exponent = torch.sum(diff@cov_inv*diff, dim=1)
 
         # Compute the exponent part of the Gaussian distribution
         
 
         # Return the Gaussian probability (without normalization constant)
-        return -0.5 * quadratic_form.squeeze() + self.log_const
+        return -0.5 *exponent  + self.log_const
 
     def prob(self, x):
         return torch.exp(self.log_prob(x))
